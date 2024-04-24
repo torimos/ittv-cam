@@ -131,7 +131,7 @@ async def monitor_task(queue, timeout = 60*5):
         if proc == None:
             if e == 1:
                 print(f"[{time.time()}] Starting process")
-                play_mp3("cam_on.mp3")
+                play_mp3("assets/cam_on.mp3")
                 proc = await start_subprocess()
                 start_time = time.time()
         elif time.time() - start_time > timeout or (e == 1 and td < 0.2):
@@ -140,7 +140,7 @@ async def monitor_task(queue, timeout = 60*5):
             else:
                 print(f"[{time.time()}] Timeout reached without touch event, terminating the process")
             set_backlight(False)
-            play_mp3("cam_off.mp3")
+            play_mp3("assets/cam_off.mp3")
             proc.terminate()
             proc = None
         else:
