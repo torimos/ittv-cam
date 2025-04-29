@@ -121,6 +121,7 @@ async def read_input_device(queue, device_path):
 async def monitor_task(queue, timeout = 60*5):
     proc = None
     start_time = time.time()
+    restart_counter = 1
     while True:
         #print(f"[{time.time()}] State: {proc}")
         e = 0
@@ -134,11 +135,12 @@ async def monitor_task(queue, timeout = 60*5):
                 play_mp3("assets/cam_on.mp3")
                 proc = await start_subprocess()
                 start_time = time.time()
-        elif time.time() - start_time > timeout or (e == 1 and td < 0.2):
+                restart_counter = 1
+        elif time.time() - start_time > (timeout*restart_counter) or (e == 1 and td < 0.2):
             if td < 0.2:
                 print(f"[{time.time()}] Double touch event, terminating the process")
             else:
-                print(f"[{time.time()}] Timeout reached without touch event, terminating the process")
+                print(f"[{time.time()}] Timeout ({(timeout*restart_counter)}) reached without touch event, terminating the process")
             set_backlight(False)
             play_mp3("assets/cam_off.mp3")
             proc.terminate()
@@ -147,6 +149,8 @@ async def monitor_task(queue, timeout = 60*5):
             if e == 1:
                 print(f"[{time.time()}] Restarting timer")
                 start_time = time.time()
+                if restart_counter < 3: 
+                    restart_counter += 1
             print(f"{timeout - int(time.time() - start_time)}")
         await asyncio.sleep(1)
 
